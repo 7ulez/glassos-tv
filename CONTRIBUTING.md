@@ -1,7 +1,7 @@
 # Contributing
 
 Thanks for helping. Issues and pull requests are welcome. Questions and ideas go in
-[Discussions](https://github.com/AbhishekKaisar/glassos-tv/discussions).
+[Issues](https://github.com/7ulez/glassos-tv/issues).
 
 ## Report a bug or a device result
 
@@ -11,7 +11,7 @@ Thanks for helping. Issues and pull requests are welcome. Questions and ideas go
   `adb logcat -d | grep -i glassos`.
 - **Device results**: GlassOS is tested on few devices. If you try it on yours, use the device report form, even
   when everything works. Say the model, the Fire OS or Android version and whether the Home button opens GlassOS.
-- Issues: https://github.com/AbhishekKaisar/glassos-tv/issues. Look for `good first issue` and `help wanted` if
+- Issues: https://github.com/7ulez/glassos-tv/issues. Look for `good first issue` and `help wanted` if
   you want something to pick up.
 
 ## Build
@@ -84,8 +84,9 @@ keyPassword=...
 
 Without it, `assembleRelease` builds an unsigned APK. Contributors do not need this.
 
-With each release, update the APK name and its direct link in the README's Install section: releases are
-pre-releases, so GitHub's `releases/latest` link does not find them.
+To release, push a tag: `git tag v1.2.0 && git push origin v1.2.0`. `.github/workflows/release.yml` builds the signed
+APK and publishes it; the repository secrets KEYSTORE_BASE64 (the keystore, base64), KEYSTORE_PASSWORD, KEY_ALIAS and
+KEY_PASSWORD hold the signing config. The in-app updater installs the newest release.
 
 ## Licence
 

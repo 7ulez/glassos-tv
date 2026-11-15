@@ -7,7 +7,7 @@ agent working on the code.
 
 # Part 1: Installing GlassOS on someone's TV
 
-GlassOS is a free home screen for Android TV, Google TV and Amazon Fire TV (https://github.com/AbhishekKaisar/glassos-tv).
+GlassOS is a free home screen for Android TV, Google TV and Amazon Fire TV (https://github.com/7ulez/glassos-tv).
 The person asking you may not be technical. Do the work for them, and talk in plain words.
 
 ## Safety rules (read first)
@@ -87,25 +87,25 @@ Tell the person: "Look at the TV. It asks 'Allow USB debugging?'. Tick **Always 
 
 ## Step 5: Download and verify the APK
 
-Use the official release page only: https://github.com/AbhishekKaisar/glassos-tv/releases. GitHub's "latest" shortcut
+Use the official release page only: https://github.com/7ulez/glassos-tv/releases. GitHub's "latest" shortcut
 ignores pre-releases, and GlassOS is currently in beta, so take the newest release from the list.
 
 ```sh
 mkdir glassos-install && cd glassos-install
 # With the GitHub CLI:
-gh release download --repo AbhishekKaisar/glassos-tv --pattern 'GlassOS-*.apk' "$(gh release list --repo AbhishekKaisar/glassos-tv --limit 1 --json tagName --jq '.[0].tagName')"
+gh release download --repo 7ulez/glassos-tv --pattern 'GlassOS-*.apk' "$(gh release list --repo 7ulez/glassos-tv --limit 1 --json tagName --jq '.[0].tagName')"
 # Without it (macOS, Linux, Windows 10+ have curl):
-curl -s "https://api.github.com/repos/AbhishekKaisar/glassos-tv/releases?per_page=1" | grep browser_download_url
+curl -s "https://api.github.com/repos/7ulez/glassos-tv/releases?per_page=1" | grep browser_download_url
 curl -L -o GlassOS.apk "<the browser_download_url printed above>"
 ```
 
-The URL must start with `https://github.com/AbhishekKaisar/glassos-tv/releases/download/`.
+The URL must start with `https://github.com/7ulez/glassos-tv/releases/download/`.
 
 Then check who signed it. The official release is signed with this certificate:
 
 ```
-SHA-256: AA:68:97:AB:6E:00:8C:EB:7D:6F:30:F7:18:F8:5F:84:77:E7:37:04:88:16:F9:0C:5D:48:39:08:70:48:AC:E7
-Owner:   CN=GlassOS, O=AbhishekKaisar
+SHA-256: FD:A9:42:DA:7B:72:05:1E:6B:1E:D3:2F:A6:72:75:91:93:E5:C9:48:8D:EF:72:86:3D:75:8D:38:D2:E2:B6:25
+Owner:   CN=GlassOS, O=7ulez
 ```
 
 Either of these prints it (`keytool` comes with any JDK, `apksigner` with the Android SDK build tools):

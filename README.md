@@ -56,14 +56,12 @@ on the Android TV emulator.
 
 ## Install
 
-GlassOS is not in Google Play or the Amazon Appstore. Download `GlassOS-v1.0.2-beta.apk` from the
-[Releases](https://github.com/AbhishekKaisar/glassos-tv/releases) page, or type its direct link into Downloader:
+GlassOS is not in Google Play or the Amazon Appstore. Download the `GlassOS-<version>.apk` of the newest release from the
+[Releases](https://github.com/7ulez/glassos-tv/releases) page. Once installed, GlassOS updates itself from there:
+Settings > Check for updates.
 
-```
-https://github.com/AbhishekKaisar/glassos-tv/releases/download/v1.0.2-beta/GlassOS-v1.0.2-beta.apk
-```
-
-GlassOS releases are betas, so GitHub's usual `releases/latest` link does not work for them.
+This is a fork of [AbhishekKaisar/glassos-tv](https://github.com/AbhishekKaisar/glassos-tv). Its releases are signed
+with a different key, so a copy installed from the original cannot be updated over: uninstall it first.
 
 ### Android TV and Google TV
 
@@ -97,7 +95,7 @@ adb shell am start -n io.github.abhishekkaisar.glassos/.MainActivity
 Not comfortable with adb? Open an AI coding agent (Claude Code, Codex, Cursor, Gemini CLI and similar) on your
 computer and tell it:
 
-> Set up GlassOS on my TV using AGENTS.md from github.com/AbhishekKaisar/glassos-tv
+> Set up GlassOS on my TV using AGENTS.md from github.com/7ulez/glassos-tv
 
 [AGENTS.md](AGENTS.md) walks the agent through it step by step: it asks which TV you have, helps you turn on
 debugging, installs only adb and the signature-checked GlassOS APK, and explains each step first.
