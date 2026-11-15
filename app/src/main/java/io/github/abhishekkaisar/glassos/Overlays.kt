@@ -39,6 +39,7 @@ class SettingsView(private val act: HomeScreen) : FrameLayout(act.ctx) {
     private val permsRow = RowView(context, "Permissions")
     private val setupRow = RowView(context, "Run setup again")
     private val aboutRow = RowView(context, "About")
+    private val updateRow = RowView(context, "Check for updates")
     private val uninstallRow = RowView(context, "Prepare to uninstall")
     private val soundRow = RowView(context, "Focus sounds")
     private val transparencyRow = RowView(context, "Reduce transparency")
@@ -126,6 +127,7 @@ class SettingsView(private val act: HomeScreen) : FrameLayout(act.ctx) {
         if (Platform.stockHome(context) != null) list.addView(fireHomeRow, rowLp())
         list.addView(setupRow, rowLp())
         list.addView(uninstallRow, rowLp())
+        list.addView(updateRow, rowLp())
         list.addView(aboutRow, rowLp())
 
         fun step(row: View, s: SetupView.Step) { resumeRow = row; act.openSetup(s, single = true) }
@@ -139,6 +141,7 @@ class SettingsView(private val act: HomeScreen) : FrameLayout(act.ctx) {
         homeAppRow.onClick = { step(homeAppRow, SetupView.Step.HOME) }
         setupRow.onClick = { resumeRow = setupRow; act.openSetup() }
         aboutRow.onClick = { step(aboutRow, SetupView.Step.ABOUT) }
+        updateRow.onClick = { act.checkForUpdates(manual = true) }
         // Device admin blocks uninstalling; an app may always remove its own admin.
         uninstallRow.onClick = {
             Power.removeAdmin(context)
@@ -178,7 +181,11 @@ class SettingsView(private val act: HomeScreen) : FrameLayout(act.ctx) {
         editRow.valueView.textSize = 24f
     }
 
+    /** Re-reads the values shown (after an update check). */
+    fun refresh() = updateValues()
+
     private fun updateValues() {
+        updateRow.valueView.text = act.prefs.updateAvailable.let { if (it.isEmpty() || Updater.compareVersions(it, BuildConfig.VERSION_NAME) <= 0) "v${BuildConfig.VERSION_NAME}" else "Update $it" }
         soundRow.valueView.text = if (act.prefs.sound) "On" else "Off"
         transparencyRow.valueView.text = if (act.prefs.reduceTransparency) "On" else "Off"
         val hiddenCount = act.prefs.hidden.count { p -> HomeShare.apps?.any { it.pkg == p } ?: true }

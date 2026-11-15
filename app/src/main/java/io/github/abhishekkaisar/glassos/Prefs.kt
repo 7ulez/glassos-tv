@@ -78,6 +78,21 @@ class Prefs(ctx: Context) {
         get() = sp.getString("adbBlockedBuild", "") ?: ""
         set(v) { sp.edit().putString("adbBlockedBuild", v).apply() }
 
+    /** When the last update check ran (0: never, or the last one failed); see [Updater.AUTO_INTERVAL_MS]. */
+    var updateCheckedAt: Long
+        get() = sp.getLong("updateCheckedAt", 0L)
+        set(v) { sp.edit().putLong("updateCheckedAt", v).apply() }
+
+    /** The newer version the last check found, or empty. Settings shows it without asking GitHub again. */
+    var updateAvailable: String
+        get() = sp.getString("updateAvailable", "") ?: ""
+        set(v) { sp.edit().putString("updateAvailable", v).apply() }
+
+    /** The version the user chose "Later" for: the start-up check does not offer it again, Settings still does. */
+    var updateSkipped: String
+        get() = sp.getString("updateSkipped", "") ?: ""
+        set(v) { sp.edit().putString("updateSkipped", v).apply() }
+
     companion object {
         const val DEFAULT_SCENE = "scene:desert"
 

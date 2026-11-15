@@ -33,8 +33,10 @@ android {
         applicationId = "io.github.abhishekkaisar.glassos"
         minSdk = 22
         targetSdk = 28
-        versionCode = 3
-        versionName = "1.0.2-beta"
+        // The release workflow (.github/workflows/release.yml) passes the tag's version as -PversionName and a
+        // rising number as -PversionCode; local builds keep these.
+        versionCode = (project.findProperty("versionCode") as String?)?.toInt() ?: 3
+        versionName = (project.findProperty("versionName") as String?) ?: "1.0.2-beta"
         buildConfigField("String", "TMDB_API_KEY", "\"${tmdbKey.replace("\"", "")}\"")
     }
 

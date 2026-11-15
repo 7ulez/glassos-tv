@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- In-app updates: GlassOS checks this fork's GitHub releases when it starts (at most every 6 hours) and offers a newer
+  version in a card with the release notes. Settings > Check for updates shows the installed version and checks on
+  demand. "Update now" downloads the APK with a progress bar and opens Android's installer; on Android 8 and later
+  GlassOS must first be allowed to install apps. Pushing a tag such as v1.2.0 builds and publishes a signed release
+  (`.github/workflows/release.yml`; needs the KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD secrets).
 - Control Center looks like tvOS's: the time and date head the panel, with the tabs beside them as round icons
   (Profile, Controls, and Now Playing and VPN while active) and the shown tab lit. The tab name above the buttons is
   gone, and nine buttons make a three by three grid instead of two full rows and one button on its own.

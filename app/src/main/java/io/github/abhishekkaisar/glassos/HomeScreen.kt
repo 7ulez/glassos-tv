@@ -72,6 +72,7 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
     lateinit var setup: SetupView
         private set
     lateinit var appMenu: AppMenu
+    lateinit var updateDialog: UpdateDialog
         private set
     private lateinit var movePill: GlassBox
 
@@ -118,6 +119,7 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
             if (cc.isOpen) invalidateDeep(cc.panel)
             if (setup.isOpen) invalidateDeep(setup.panel)
             if (appMenu.isOpen) invalidateDeep(appMenu.panel)
+            if (updateDialog.isOpen) invalidateDeep(updateDialog.panel)
             if (movePill.visibility == View.VISIBLE) movePill.invalidate()
         }
     }
@@ -143,6 +145,7 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
         hero.release()
         // The overlay is removed with Control Center open when it hands over to MainActivity.
         if (::cc.isInitialized) cc.release()
+        if (::updateDialog.isInitialized) updateDialog.release()
         labelAnim?.cancel()
         main.removeCallbacksAndMessages(null)
         worker.shutdownNow()
@@ -277,6 +280,8 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
         root.addView(setup, FrameLayout.LayoutParams(-1, -1))
         appMenu = AppMenu(this)
         root.addView(appMenu, FrameLayout.LayoutParams(-1, -1))
+        updateDialog = UpdateDialog(this)
+        root.addView(updateDialog, FrameLayout.LayoutParams(-1, -1))
 
         root.viewTreeObserver.addOnGlobalFocusChangeListener { old, new ->
             // Only a key moves focus audibly. A change no key caused (the app list reloaded, a window came back)
@@ -351,7 +356,7 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
     fun updateHeroRunning() {
         if (!::hero.isInitialized || released) return
         hero.setRunning(resumed && currentRow == 0 && !settings.isOpen && !cc.isOpen && !setup.isOpen && !hero.isFocused && !editMode &&
-            movingPkg == null && !appMenu.isOpen)
+            movingPkg == null && !appMenu.isOpen && !updateDialog.isOpen)
     }
 
     /**
@@ -495,6 +500,45 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
         if (::setup.isInitialized) setup.onReturned()
         updateTime()
         if (!worker.isShutdown) worker.execute { refreshTitles(prefs.scene, wallToken) }
+        checkForUpdates(manual = false)
+    }
+
+    // ---------- Updates ----------
+
+    private fun updateBusy() = settings.isOpen || cc.isOpen || setup.isOpen || appMenu.isOpen || updateDialog.isOpen ||
+        editMode || movingPkg != null
+
+    /**
+     * Looks for a newer release of this fork. At start (and after Home, at most every 6 hours) it offers one only
+     * when nothing else is open and the user has not chosen Later for that version; [manual] (Settings) always
+     * answers, with the card or a message.
+     */
+    fun checkForUpdates(manual: Boolean) {
+        if (ctx !is Activity || !::settings.isInitialized || !prefs.setupDone) return
+        if (manual) Toast.makeText(ctx, "Checking for updates\u2026", Toast.LENGTH_SHORT).show()
+        Updater.check(ctx, manual) { r ->
+            if (released || r == null) return@check
+            if (settings.isOpen) settings.refresh()
+            when (r) {
+                is Updater.Result.Available -> {
+                    if (manual || (r.release.version != prefs.updateSkipped && resumed && !updateBusy())) showUpdate(r.release)
+                }
+                is Updater.Result.UpToDate -> if (manual) Toast.makeText(ctx, "GlassOS ${r.version} is up to date", Toast.LENGTH_LONG).show()
+                is Updater.Result.Failed -> if (manual) Toast.makeText(ctx, r.message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun showUpdate(r: Updater.Release) {
+        if (updateDialog.isOpen || cc.isOpen || setup.isOpen || appMenu.isOpen) return
+        val prev = root.findFocus()
+        blockHome(true)
+        updateDialog.open(r) {
+            if (!settings.isOpen) blockHome(false)
+            if (prev == null || !prev.isAttachedToWindow || !prev.requestFocus()) { if (!settings.isOpen) focusDock() }
+            updateHeroRunning()
+        }
+        updateHeroRunning()
     }
 
     fun updateTime() {
@@ -1152,6 +1196,7 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
             if (e.repeatCount > 0) return true
             eatOkUp = false
         }
+        if (updateDialog.isOpen) return updateDialog.onKey(e)
         if (settings.isOpen || cc.isOpen || appMenu.isOpen) return false
         val focusTile = focused() as? TileView
         if (movingPkg != null) {
@@ -1209,6 +1254,7 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
     /** Menu opens Control Center anywhere on the home; while an app is moving it opens the app's options. */
     private fun onMenu() {
         when {
+            updateDialog.isOpen -> updateDialog.back()
             cc.isOpen -> cc.close()
             settings.isOpen -> settings.close()
             appMenu.isOpen -> appMenu.close()
@@ -1220,6 +1266,7 @@ class HomeScreen(val ctx: Context, private val host: HomeHost, seed: HomeScreen?
 
     fun onBack() {
         when {
+            updateDialog.isOpen -> updateDialog.back()
             setup.isOpen -> setup.back()
             cc.isOpen -> cc.back()
             settings.isOpen -> settings.close()
